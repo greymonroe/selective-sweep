@@ -199,6 +199,7 @@ footer{color:var(--muted);font-size:.85rem;text-align:center;padding:24px 0 8px}
       <div class="card try" style="margin-top:16px">
         <h2>What to try</h2>
         <ol>
+          <li>Run a sweep and a bottleneck. How do the two diversity plots differ in shape?</li>
           <li>2 founders vs 50 founders.</li>
           <li>A short bottleneck (2 generations) vs a long one (40).</li>
           <li>Weak (0.001) vs strong (0.1) harmful mutations. Weak ones drift up in a small population; strong ones get purged anyway.</li>
@@ -208,15 +209,15 @@ footer{color:var(--muted);font-size:.85rem;text-align:center;padding:24px 0 8px}
 
       <div class="card" style="margin-top:16px">
         <h2>The model</h2>
-        <p style="font-size:.9rem">Each generation, every plant is replaced by offspring of two parents; healthier parents are more likely to be picked. Each parent passes on one of its two copies of every site, at random. Every new gamete also picks up new harmful mutations (on average <i>U</i>), each at a new site; a plant with one copy loses <i>h</i>·<i>s</i><sub>d</sub> of its fitness, with two copies <i>s</i><sub>d</sub>, and costs multiply across sites. Before generation 0 the large population runs 200 generations so it already carries a realistic set of rare harmful mutations. The crop is then founded by <i>F</i> plants drawn from it.</p>
-        <p style="font-size:.9rem">Diversity is the chance that two random copies of a neutral site differ (60 neutral sites, averaged). The gene has 12 alleles at the start, from common to rare. Even the &ldquo;large&rdquo; population drifts a little: 500 plants is small next to a real wild species.</p>
+        <p style="font-size:.9rem">Each generation, every plant is replaced by offspring of two parents; healthier parents are more likely to be picked. Each parent passes on one of its two copies of every harmful site, at random (they are unlinked). Every new gamete also picks up new harmful mutations (on average <i>U</i>), each at a new site; a plant with one copy loses <i>h</i>·<i>s</i><sub>d</sub> of its fitness, with two copies <i>s</i><sub>d</sub>, and costs multiply across sites. Before generation 0 the large population runs 200 generations so it already carries a realistic set of rare harmful mutations. The crop is then founded by <i>F</i> plants drawn from it.</p>
+        <p style="font-size:.9rem">Diversity is the chance that two random copies of a neutral site differ. The chromosome carries 200 common neutral variants spread evenly along it (about one crossover per chromosome per generation), set up the same way as on the sweep tab. Even the &ldquo;large&rdquo; population drifts a little: 500 plants is small next to a real wild species.</p>
       </div>
     </div>
 
     <div>
       <div class="readouts five">
-        <div class="ro"><div class="num pair" id="bn-roA">–</div><div class="lab">gene alleles kept (of 12)</div></div>
-        <div class="ro"><div class="num pair" id="bn-roH">–</div><div class="lab">diversity lost</div></div>
+        <div class="ro"><div class="num pair" id="bn-roH">–</div><div class="lab">genome-wide diversity lost</div></div>
+        <div class="ro"><div class="num pair" id="bn-roA">–</div><div class="lab">chromosome below half its starting diversity</div></div>
         <div class="ro"><div class="num pair" id="bn-roX">–</div><div class="lab">harmful mutations fixed</div></div>
         <div class="ro"><div class="num pair" id="bn-roL">–</div><div class="lab">harmful alleles per plant</div></div>
         <div class="ro"><div class="num pair" id="bn-roW">–</div><div class="lab">fitness (mutation-free = 1)</div></div>
@@ -227,11 +228,11 @@ footer{color:var(--muted);font-size:.85rem;text-align:center;padding:24px 0 8px}
       <div class="card plot"><h2>Population size</h2><canvas id="bn-cN"></canvas>
         <div class="cap">Number of plants (up, log scale) in each generation (across).</div></div>
 
-      <div class="card plot"><h2>Alleles remaining at the gene</h2><canvas id="bn-cA"></canvas>
-        <div class="cap">Each dot is one of the 12 starting alleles. Filled = still present, hollow = lost.</div></div>
+      <div class="card plot"><h2>Diversity along the chromosome</h2><canvas id="bn-cP"></canvas>
+        <div class="cap">Diversity at each position (across), relative to the start (dashed line = 1). A bottleneck lowers diversity everywhere along the chromosome. Compare the sweep tab, where it drops in one valley.</div></div>
 
-      <div class="card plot"><h2>Genetic diversity</h2><canvas id="bn-cH"></canvas>
-        <div class="cap">Diversity (chance two random copies differ), relative to the start (up), over generations (across).</div></div>
+      <div class="card plot"><h2>Genome-wide diversity over time</h2><canvas id="bn-cH"></canvas>
+        <div class="cap">Diversity averaged over all 200 sites (chance two random copies differ), relative to the start (up), over generations (across).</div></div>
 
       <div class="card plot"><h2>Harmful load</h2><canvas id="bn-cL"></canvas>
         <div class="cap">Average number of harmful alleles per plant (up) over generations (across). Dashed lines: harmful mutations fixed (every plant carries two copies), right axis.</div></div>
@@ -239,7 +240,7 @@ footer{color:var(--muted);font-size:.85rem;text-align:center;padding:24px 0 8px}
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h2 style="margin:0">Run history</h2><button id="bn-clear" style="flex:0 0 auto">Clear history</button></div>
         <div class="tablewrap"><table>
-          <thead><tr><th>#</th><th><i>F</i></th><th><i>D</i></th><th><i>s</i><sub>d</sub></th><th><i>U</i></th><th><i>h</i></th><th>Alleles<br>W / C</th><th>Div. lost<br>W / C</th><th>Fixed<br>W / C</th><th>Load<br>W / C</th></tr></thead>
+          <thead><tr><th>#</th><th><i>F</i></th><th><i>D</i></th><th><i>s</i><sub>d</sub></th><th><i>U</i></th><th><i>h</i></th><th>Div. lost<br>W / C</th><th>Below half<br>W / C</th><th>Fixed<br>W / C</th><th>Load<br>W / C</th></tr></thead>
           <tbody id="bn-hist"></tbody>
         </table></div>
       </div>
@@ -348,10 +349,10 @@ function sweepMetrics(rel){
 function poissonR(rng,lam){if(lam<=0)return 0;var Lx=Math.exp(-lam),k=0,p=1;do{k++;p*=rng();}while(p>Lx);return k-1;}
 
 // Diploid Wright-Fisher population. Haplotype h of individual i is index 2i+h.
-// Neutral: M unlinked biallelic sites (dense Uint8Array) + one gene with up to 12 alleles.
+// Neutral: M biallelic sites evenly spaced along a chromosome of map length RN Morgans (dense Uint8Array).
 // Harmful: infinite sites, unlinked; each haplotype holds a sorted list of mutation ids.
-function makePop(n,M){return {n:n,M:M,neu:new Uint8Array(2*n*M),gene:new Uint8Array(2*n),mut:new Array(2*n),fixed:0,nextId:0};}
-function clonePop(p){var q=makePop(p.n,p.M);q.neu.set(p.neu);q.gene.set(p.gene);for(var i=0;i<2*p.n;i++)q.mut[i]=p.mut[i].slice();q.fixed=p.fixed;q.nextId=p.nextId;return q;}
+function makePop(n,M){return {n:n,M:M,neu:new Uint8Array(2*n*M),mut:new Array(2*n),fixed:0,nextId:0};}
+function clonePop(p){var q=makePop(p.n,p.M);q.neu.set(p.neu);for(var i=0;i<2*p.n;i++)q.mut[i]=p.mut[i].slice();q.fixed=p.fixed;q.nextId=p.nextId;return q;}
 
 function genoCounts(a,b){ // het, hom counts between two sorted lists
   var i=0,j=0,hom=0;while(i<a.length&&j<b.length){if(a[i]===b[j]){hom++;i++;j++;}else if(a[i]<b[j])i++;else j++;}
@@ -379,16 +380,18 @@ function gamete(p,par,coin,out){ // build a recombinant gamete's harmful list (f
 
 // One generation: n2 offspring from population p.
 function nextGen(p,n2,o){
-  var rng=o.rng,coin=makeCoin(rng),s=o.s,h=o.h,U=o.U,M=p.M,n=p.n;
+  var rng=o.rng,coin=makeCoin(rng),RN=o.RN==null?1:o.RN,s=o.s,h=o.h,U=o.U,M=p.M,n=p.n;
   var cum=new Float64Array(n),tot=0;
   for(var i=0;i<n;i++){tot+=fitnessOf(p,i,s,h);cum[i]=tot;}
   function pick(){var u=rng()*tot,lo=0,hi=n-1;while(lo<hi){var m=(lo+hi)>>1;if(cum[m]<u)lo=m+1;else hi=m;}return lo;}
-  var q={n:n2,M:M,neu:new Uint8Array(2*n2*M),gene:new Uint8Array(2*n2),mut:new Array(2*n2),fixed:p.fixed,nextId:p.nextId};
+  var q={n:n2,M:M,neu:new Uint8Array(2*n2*M),mut:new Array(2*n2),fixed:p.fixed,nextId:p.nextId};
   for(i=0;i<n2;i++){
     for(var k=0;k<2;k++){
       var par=pick(),hq=2*i+k,src0=2*par*M,src1=(2*par+1)*M,dst=hq*M;
-      for(var j=0;j<M;j++)q.neu[dst+j]=coin()?p.neu[src0+j]:p.neu[src1+j];
-      q.gene[hq]=p.gene[2*par+coin()];
+      var nx=poissonR(rng,RN),cur=coin()?src0:src1,start=0;
+      if(nx){var bp=[];for(var t=0;t<nx;t++)bp.push(Math.round(rng()*M));bp.sort(function(x,y){return x-y;});
+        for(t=0;t<nx;t++){if(bp[t]>start){q.neu.set(p.neu.subarray(cur+start,cur+bp[t]),dst+start);start=bp[t];}cur=(cur===src0)?src1:src0;}}
+      q.neu.set(p.neu.subarray(cur+start,cur+M),dst+start);
       var g=gamete(p,par,coin,[]),nm=poissonR(rng,U);
       for(var t=0;t<nm;t++)g.push(q.nextId++);
       q.mut[hq]=g;
@@ -401,8 +404,8 @@ function nextGen(p,n2,o){
 
 function stats(p,o){
   var n=p.n,M=p.M,H=2*n,s=o.s,h=o.h,het=0;
-  for(var j=0;j<M;j++){var c=0;for(var i=0;i<H;i++)c+=p.neu[i*M+j];var f=c/H;het+=2*f*(1-f)*H/(H-1);}
-  var present=new Uint8Array(12);for(i=0;i<H;i++)present[p.gene[i]]=1;
+  var site=new Float64Array(M);
+  for(var j=0;j<M;j++){var c=0;for(var i=0;i<H;i++)c+=p.neu[i*M+j];var f=c/H;site[j]=2*f*(1-f)*H/(H-1);het+=site[j];}
   var load=0,wsum=0,wself=0;
   var fixW=Math.pow(1-s,p.fixed);
   for(i=0;i<n;i++){
@@ -411,32 +414,27 @@ function stats(p,o){
     var w=Math.pow(1-h*s,gc[0])*Math.pow(1-s,gc[1]);wsum+=w;
     wself+=Math.pow(0.25*(1-s)+0.5*(1-h*s)+0.25,gc[0])*Math.pow(1-s,gc[1]);
   }
-  var nAll=0;for(i=0;i<12;i++)nAll+=present[i];
-  return {n:n,het:het/M,present:present,alleles:nAll,load:load/n+2*p.fixed,fixed:p.fixed,
+  return {n:n,het:het/M,site:site,load:load/n+2*p.fixed,fixed:p.fixed,
           fitness:(wsum/n)*fixW,inbDep:1-wself/wsum};
 }
 
 // Build the shared starting population: burn-in for harmful load, then fresh neutral variation.
 function initPopulation(o){
-  var N=o.N,M=o.M||60,rng=o.rng,p=makePop(N,M);
+  var N=o.N,M=o.M||200,rng=o.rng,p=makePop(N,M);
   for(var i=0;i<2*N;i++)p.mut[i]=[];
   for(var g=0;g<(o.burn==null?200:o.burn);g++)p=nextGen(p,N,o);
   p.fixed=0; // count only fixations after generation 0
-  var H=2*N,lo=Math.ceil(0.05*H),hi=H-lo,cw=[],tot=0;
+  var H=2*N,lo=Math.ceil(0.1*H),hi=H-lo,cw=[],tot=0;
   for(var c=lo;c<=hi;c++){tot+=1/c;cw.push(tot);}
   var idx=new Int32Array(H);for(i=0;i<H;i++)idx[i]=i;
   function shuffle(){for(var i=H-1;i>0;i--){var m=Math.floor(rng()*(i+1)),t=idx[i];idx[i]=idx[m];idx[m]=t;}}
   for(var j=0;j<M;j++){var u=rng()*tot,k=0;while(cw[k]<u)k++;shuffle();for(i=0;i<H;i++)p.neu[idx[i]*M+j]=(i<lo+k)?1:0;}
-  // gene: 12 alleles, common to rare (frequency proportional to 1/sqrt(rank))
-  var wts=[],wt=0;for(i=1;i<=12;i++){wt+=1/Math.sqrt(i);wts.push(wt);}
-  shuffle();var pos=0;
-  for(var a=0;a<12;a++){var upto=a===11?H:Math.round(H*wts[a]/wt);for(;pos<upto;pos++)p.gene[idx[pos]]=a;}
   return p;
 }
 function sampleFounders(p,F,rng){
   var M=p.M,q=makePop(F,M),ids=[];for(var i=0;i<p.n;i++)ids.push(i);
   for(i=0;i<F;i++){var m=i+Math.floor(rng()*(p.n-i)),t=ids[i];ids[i]=ids[m];ids[m]=t;
-    for(var k=0;k<2;k++){var src=2*ids[i]+k,dst=2*i+k;q.neu.set(p.neu.subarray(src*M,src*M+M),dst*M);q.gene[dst]=p.gene[src];q.mut[dst]=p.mut[src].slice();}}
+    for(var k=0;k<2;k++){var src=2*ids[i]+k,dst=2*i+k;q.neu.set(p.neu.subarray(src*M,src*M+M),dst*M);q.mut[dst]=p.mut[src].slice();}}
   q.fixed=0;q.nextId=p.nextId;
   // mutations fixed among the founders count as fixed in the crop
   removeFixed(q);
@@ -447,7 +445,7 @@ function createBottleneck(o){
   var base=initPopulation(o);
   var wild=clonePop(base),crop=sampleFounders(base,o.F,o.rng);
   var st={gen:0,T:o.T||200,wild:wild,crop:crop,hist:{wild:[stats(wild,o)],crop:[stats(crop,o)]},done:false};
-  st.H0=st.hist.wild[0].het;
+  st.H0=st.hist.wild[0].het;st.site0=st.hist.wild[0].site;
   st.step=function(){
     if(st.done)return;
     st.gen++;
@@ -615,7 +613,6 @@ var Fv=function(){return F_STEPS[+$('F').value];},Dv=function(){return +$('D').v
 function showVals(){$('FVal').textContent=Fv();$('DVal').textContent=Dv();$('sdVal').textContent=SDv();$('UVal').textContent=Uv().toFixed(1);}
 ['F','D','sd','U'].forEach(function(id){$(id).oninput=showVals;});showVals();
 var N=500,T=200,sim=null,running=false,fast=false,history=[],runNo=0;
-var ALLELE_COLS=['#1E88E5','#F57C00','#43A047','#8E24AA','#E53935','#00ACC1','#FDD835','#6D4C41','#3949AB','#D81B60','#7CB342','#546E7A'];
 
 function frame(id,ylab,yticks,Y,X,m,w,h,ctx,xlab){
   ctx.font='11px -apple-system,Helvetica,Arial,sans-serif';ctx.fillStyle=cssv('--muted');ctx.strokeStyle=cssv('--line');ctx.lineWidth=1;
@@ -634,16 +631,23 @@ function drawN(){
   series(ctx,sim.hist.wild,function(s){return s.n;},X,Y,cssv('--wild'));
   series(ctx,sim.hist.crop,function(s){return s.n;},X,Y,cssv('--crop'));
 }
-function drawA(){
-  var d=setupCanvas($('cA'),110),ctx=d.ctx,w=d.w,h=d.h;ctx.clearRect(0,0,w,h);
-  var rows=[['Wild','wild','--wild'],['Crop','crop','--crop']],lx=58,step=(w-lx-14)/12,r=Math.min(11,step*0.38);
-  rows.forEach(function(row,k){
-    var y=30+k*48,st=sim?sim.hist[row[1]][sim.hist[row[1]].length-1]:null;
-    ctx.fillStyle=cssv(row[2]);ctx.font='bold 13px -apple-system,Helvetica,Arial,sans-serif';ctx.textAlign='left';ctx.fillText(row[0],0,y+5);
-    for(var a=0;a<12;a++){var x=lx+step*(a+0.5),on=!st||st.present[a];
-      ctx.beginPath();ctx.arc(x,y,r,0,6.29);ctx.lineWidth=2;ctx.strokeStyle=ALLELE_COLS[a];
-      if(on){ctx.fillStyle=ALLELE_COLS[a];ctx.fill();}else{ctx.stroke();}}
-  });
+function relOf(p){return relDiversity(sim.hist[p][sim.hist[p].length-1].site,sim.site0,6);}
+function belowHalf(rel){var c=0;for(var j=0;j<rel.length;j++)if(rel[j]<0.5)c++;return c/rel.length;}
+function drawP(){
+  var d=setupCanvas($('cP'),plotH()),ctx=d.ctx,w=d.w,h=d.h,m={l:44,r:10,t:14,b:30};ctx.clearRect(0,0,w,h);
+  var ymax=1.25,X=function(p){return m.l+(w-m.l-m.r)*p;},Y=function(v){return h-m.b-(h-m.t-m.b)*Math.min(v,ymax)/ymax;};
+  ctx.font='11px -apple-system,Helvetica,Arial,sans-serif';ctx.fillStyle=cssv('--muted');
+  ctx.textAlign='right';[0,0.5,1].forEach(function(v){ctx.fillText(v,m.l-6,Y(v)+4);});
+  ctx.textAlign='center';[0,0.25,0.5,0.75,1].forEach(function(v){ctx.fillText(Math.round(v*100)+'%',X(v),h-m.b+14);});
+  ctx.fillText('position along chromosome',(m.l+w-m.r)/2,h-3);
+  ctx.save();ctx.translate(11,(m.t+h-m.b)/2);ctx.rotate(-Math.PI/2);ctx.fillText('relative diversity',0,0);ctx.restore();
+  ctx.strokeStyle=cssv('--line');ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(m.l,m.t);ctx.lineTo(m.l,h-m.b);ctx.lineTo(w-m.r,h-m.b);ctx.stroke();
+  ctx.setLineDash([6,4]);ctx.strokeStyle=cssv('--muted');ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(X(0),Y(1));ctx.lineTo(X(1),Y(1));ctx.stroke();
+  ctx.setLineDash([2,4]);ctx.strokeStyle=cssv('--bad');ctx.beginPath();ctx.moveTo(X(0),Y(0.5));ctx.lineTo(X(1),Y(0.5));ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle=cssv('--bad');ctx.textAlign='left';ctx.fillText('half',X(0)+4,Y(0.5)-4);
+  if(!sim)return;
+  [['wild','--wild'],['crop','--crop']].forEach(function(pc){var rel=relOf(pc[0]);ctx.strokeStyle=cssv(pc[1]);ctx.lineWidth=2.5;ctx.beginPath();
+    for(var j=0;j<rel.length;j++){var x=X((j+0.5)/rel.length),y=Y(rel[j]);j?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.stroke();});
 }
 function drawH(){
   var d=setupCanvas($('cH'),plotH()),ctx=d.ctx,w=d.w,h=d.h,m={l:44,r:10,t:10,b:30};ctx.clearRect(0,0,w,h);
@@ -668,13 +672,14 @@ function drawL(){
   series(ctx,sim.hist.wild,function(s){return s.fixed;},X,Y2,cssv('--wild'),[5,4]);
   series(ctx,sim.hist.crop,function(s){return s.fixed;},X,Y2,cssv('--crop'),[5,4]);
 }
-function drawAll(){drawN();drawA();drawH();drawL();}
+function drawAll(){drawN();drawP();drawH();drawL();}
 function pair(a,b){return '<span class="w">'+a+'</span> / <span class="c">'+b+'</span>';}
 function readouts(){
   if(!sim){['roA','roH','roX','roL','roW','roI'].forEach(function(id){$(id).textContent='–';});return;}
   var w=sim.hist.wild[sim.hist.wild.length-1],c=sim.hist.crop[sim.hist.crop.length-1],H0=sim.H0;
-  $('roA').innerHTML=pair(w.alleles,c.alleles);
-  $('roH').innerHTML=pair(Math.round(100*(1-w.het/H0))+'%',Math.round(100*(1-c.het/H0))+'%');
+  var vs=function(cv,wv){return '<span class="c">'+cv+'</span> <small>crop vs</small> <span class="w">'+wv+'</span> <small>wild</small>';};
+  $('roH').innerHTML=vs(Math.round(100*(1-c.het/H0))+'%',Math.round(100*(1-w.het/H0))+'%');
+  $('roA').innerHTML=vs(Math.round(100*belowHalf(relOf('crop')))+'%',Math.round(100*belowHalf(relOf('wild')))+'%');
   $('roX').innerHTML=pair(w.fixed,c.fixed);
   $('roL').innerHTML=pair(w.load.toFixed(1),c.load.toFixed(1));
   $('roW').innerHTML=pair(w.fitness.toFixed(2),c.fitness.toFixed(2));
@@ -699,11 +704,11 @@ function loop(){
   if(!sim.done){setStatus('Generation '+sim.gen+' of '+T+'. Crop size: '+sim.crop.n+' plants.');requestAnimationFrame(loop);return;}
   running=false;lock(false);setStatus('Done: 200 generations.');
   var w=sim.hist.wild[T],c=sim.hist.crop[T],o=sim.o,H0=sim.H0;
-  runNo++;history.push({n:runNo,F:o.F,D:o.D,s:o.s,U:o.U,h:o.h,aw:w.alleles,ac:c.alleles,hw:Math.round(100*(1-w.het/H0)),hc:Math.round(100*(1-c.het/H0)),fw:w.fixed,fc:c.fixed,lw:w.load.toFixed(1),lc:c.load.toFixed(1)});
+  runNo++;history.push({n:runNo,F:o.F,D:o.D,s:o.s,U:o.U,h:o.h,aw:Math.round(100*belowHalf(relOf('wild'))),ac:Math.round(100*belowHalf(relOf('crop'))),hw:Math.round(100*(1-w.het/H0)),hc:Math.round(100*(1-c.het/H0)),fw:w.fixed,fc:c.fixed,lw:w.load.toFixed(1),lc:c.load.toFixed(1)});
   renderHist();
 }
 function renderHist(){
-  $('hist').innerHTML=history.slice().reverse().map(function(r){return '<tr><td>'+r.n+'</td><td>'+r.F+'</td><td>'+r.D+'</td><td>'+r.s+'</td><td>'+r.U.toFixed(1)+'</td><td>'+r.h+'</td><td>'+pair(r.aw,r.ac)+'</td><td>'+pair(r.hw+'%',r.hc+'%')+'</td><td>'+pair(r.fw,r.fc)+'</td><td>'+pair(r.lw,r.lc)+'</td></tr>';}).join('')||'<tr><td colspan="10" style="text-align:left;color:var(--muted)">No runs yet.</td></tr>';
+  $('hist').innerHTML=history.slice().reverse().map(function(r){return '<tr><td>'+r.n+'</td><td>'+r.F+'</td><td>'+r.D+'</td><td>'+r.s+'</td><td>'+r.U.toFixed(1)+'</td><td>'+r.h+'</td><td>'+pair(r.hw+'%',r.hc+'%')+'</td><td>'+pair(r.aw+'%',r.ac+'%')+'</td><td>'+pair(r.fw,r.fc)+'</td><td>'+pair(r.lw,r.lc)+'</td></tr>';}).join('')||'<tr><td colspan="10" style="text-align:left;color:var(--muted)">No runs yet.</td></tr>';
 }
 $('run').onclick=start;
 $('reset').onclick=function(){running=false;lock(false);sim=null;readouts();drawAll();setStatus('Large size <i>N</i> = 500 plants. Run lasts 200 generations.');};
